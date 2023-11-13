@@ -1629,6 +1629,7 @@ enum ImGuiCol_
     ImGuiCol_ScrollbarGrabHovered,
     ImGuiCol_ScrollbarGrabActive,
     ImGuiCol_CheckMark,
+    ImGuiCol_CheckMarkInactive,
     ImGuiCol_SliderGrab,
     ImGuiCol_SliderGrabActive,
     ImGuiCol_Button,
@@ -1637,6 +1638,7 @@ enum ImGuiCol_
     ImGuiCol_Header,                // Header* colors are used for CollapsingHeader, TreeNode, Selectable, MenuItem
     ImGuiCol_HeaderHovered,
     ImGuiCol_HeaderActive,
+    ImGuiCol_HeaderInactive,
     ImGuiCol_Separator,
     ImGuiCol_SeparatorHovered,
     ImGuiCol_SeparatorActive,
@@ -2733,6 +2735,8 @@ struct ImDrawList
     IMGUI_API void  AddEllipseFilled(const ImVec2& center, float radius_x, float radius_y, ImU32 col, float rot = 0.0f, int num_segments = 0);
     IMGUI_API void  AddText(const ImVec2& pos, ImU32 col, const char* text_begin, const char* text_end = NULL);
     IMGUI_API void  AddText(const ImFont* font, float font_size, const ImVec2& pos, ImU32 col, const char* text_begin, const char* text_end = NULL, float wrap_width = 0.0f, const ImVec4* cpu_fine_clip_rect = NULL);
+    IMGUI_API void  AddTextMulticolor(const ImVec2& pos, ImU32 col, const char* text_begin, const char* text_end);
+    IMGUI_API void  AddTextMulticolor(const ImFont* font, float font_size, const ImVec2& pos, ImU32 col, const char* text_begin, const char* text_end = NULL, float wrap_width = 0.0f, const ImVec4* cpu_fine_clip_rect = NULL);
     IMGUI_API void  AddPolyline(const ImVec2* points, int num_points, ImU32 col, ImDrawFlags flags, float thickness);
     IMGUI_API void  AddConvexPolyFilled(const ImVec2* points, int num_points, ImU32 col);
     IMGUI_API void  AddBezierCubic(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, const ImVec2& p4, ImU32 col, float thickness, int num_segments = 0); // Cubic Bezier (4 control points)
@@ -3072,6 +3076,7 @@ struct ImFont
     IMGUI_API const char*       CalcWordWrapPositionA(float scale, const char* text, const char* text_end, float wrap_width) const;
     IMGUI_API void              RenderChar(ImDrawList* draw_list, float size, const ImVec2& pos, ImU32 col, ImWchar c) const;
     IMGUI_API void              RenderText(ImDrawList* draw_list, float size, const ImVec2& pos, ImU32 col, const ImVec4& clip_rect, const char* text_begin, const char* text_end, float wrap_width = 0.0f, bool cpu_fine_clip = false) const;
+    IMGUI_API void              RenderTextColored(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, const ImVec4& clip_rect, const char* text_begin, const char* text_end, float wrap_width = 0.0f, bool cpu_fine_clip = false, bool override_alpha = true) const;
 
     // [Internal] Don't use!
     IMGUI_API void              BuildLookupTable();

@@ -3233,6 +3233,7 @@ const char* ImGui::GetStyleColorName(ImGuiCol idx)
     case ImGuiCol_ScrollbarGrabHovered: return "ScrollbarGrabHovered";
     case ImGuiCol_ScrollbarGrabActive: return "ScrollbarGrabActive";
     case ImGuiCol_CheckMark: return "CheckMark";
+    case ImGuiCol_CheckMarkInactive: return "CheckMarkInactive";
     case ImGuiCol_SliderGrab: return "SliderGrab";
     case ImGuiCol_SliderGrabActive: return "SliderGrabActive";
     case ImGuiCol_Button: return "Button";
@@ -3241,6 +3242,7 @@ const char* ImGui::GetStyleColorName(ImGuiCol idx)
     case ImGuiCol_Header: return "Header";
     case ImGuiCol_HeaderHovered: return "HeaderHovered";
     case ImGuiCol_HeaderActive: return "HeaderActive";
+    case ImGuiCol_HeaderInactive: return "HeaderInactive";
     case ImGuiCol_Separator: return "Separator";
     case ImGuiCol_SeparatorHovered: return "SeparatorHovered";
     case ImGuiCol_SeparatorActive: return "SeparatorActive";
@@ -3330,6 +3332,22 @@ void ImGui::RenderTextWrapped(ImVec2 pos, const char* text, const char* text_end
     if (text != text_end)
     {
         window->DrawList->AddText(g.Font, g.FontSize, pos, GetColorU32(ImGuiCol_Text), text, text_end, wrap_width);
+        if (g.LogEnabled)
+            LogRenderedText(&pos, text, text_end);
+    }
+}
+
+void ImGui::RenderTextWrappedMulticolor(ImVec2 pos, const char* text, const char* text_end, float wrap_width)
+{
+    ImGuiContext& g = *GImGui;
+    ImGuiWindow* window = g.CurrentWindow;
+
+    if (!text_end)
+        text_end = text + strlen(text); // FIXME-OPT
+
+    if (text != text_end)
+    {
+        window->DrawList->AddTextMulticolor(g.Font, g.FontSize, pos, GetColorU32(ImGuiCol_Text), text, text_end, wrap_width);
         if (g.LogEnabled)
             LogRenderedText(&pos, text, text_end);
     }
@@ -6839,9 +6857,51 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
         window->ScrollMax.y = ImMax(0.0f, window->ContentSize.y + window->WindowPadding.y * 2.0f - window->InnerRect.GetHeight());
 
         // Apply scrolling
-        window->Scroll = CalcNextScrollFromScrollTargetAndClamp(window);
-        window->ScrollTarget = ImVec2(FLT_MAX, FLT_MAX);
-        window->DecoInnerSizeX1 = window->DecoInnerSizeY1 = 0.0f;
+
+        // ANIMATED SCROLLING BEGIN
+        float needed_scroll = CalcNextScrollFromScrollTargetAndClamp(window).y;
+        window->ScrollTarget = ImVec2(window->ScrollTarget.x, window->ScrollTarget.y + g.NextWindowData.ScrollVal.y);
+
+        const ImGuiID id = window->GetID(name);
+
+        // Use ImGuiStorage instead of std::map
+        float* p_anim = window->StateStorage.GetFloatRef(id, 0.0f);
+        float& anim = *p_anim;
+
+        // Linear interpolation using deltaTime
+        float interpolation_speed = 15.0f;
+        float delta = needed_scroll - anim;
+        float step = delta * g.IO.DeltaTime * interpolation_speed;
+
+        if (fabsf(step) > 0.001f) // Threshold to prevent unnecessary updates
+        {
+            anim += step;
+        }
+        else
+        {
+            anim = needed_scroll;
+        }
+
+        if (!ImGui::IsMouseDown(0))
+        {
+            if (window->Scroll.y != needed_scroll)
+            {
+                window->Scroll.y = anim;
+            }
+        }
+        else
+        {
+            window->Scroll = CalcNextScrollFromScrollTargetAndClamp(window);
+            window->ScrollTarget = ImVec2(FLT_MAX, FLT_MAX);
+            window->DecoInnerSizeX1 = window->DecoInnerSizeY1 = 0.0f;
+        }
+        // ANIMATED SCROLLING END
+
+        // DEFAULT SCROLLING CODE BEGIN
+        // window->Scroll = CalcNextScrollFromScrollTargetAndClamp(window);
+        // window->ScrollTarget = ImVec2(FLT_MAX, FLT_MAX);
+        // window->DecoInnerSizeX1 = window->DecoInnerSizeY1 = 0.0f;
+        // DEFAULT SCROLLING CODE END
 
         // DRAWING
 
@@ -10147,7 +10207,6 @@ static ImVec2 CalcNextScrollFromScrollTargetAndClamp(ImGuiWindow* window)
     }
     return scroll;
 }
-
 void ImGui::ScrollToItem(ImGuiScrollFlags flags)
 {
     ImGuiContext& g = *GImGui;

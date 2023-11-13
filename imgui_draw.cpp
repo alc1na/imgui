@@ -195,6 +195,7 @@ void ImGui::StyleColorsDark(ImGuiStyle* dst)
     colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
     colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.51f, 0.51f, 0.51f, 1.00f);
     colors[ImGuiCol_CheckMark]              = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+    colors[ImGuiCol_CheckMarkInactive]      = ImVec4(0.00f, 0.00f, 0.00f, 0.75f);
     colors[ImGuiCol_SliderGrab]             = ImVec4(0.24f, 0.52f, 0.88f, 1.00f);
     colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
     colors[ImGuiCol_Button]                 = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
@@ -255,6 +256,7 @@ void ImGui::StyleColorsClassic(ImGuiStyle* dst)
     colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.40f, 0.40f, 0.80f, 0.40f);
     colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.41f, 0.39f, 0.80f, 0.60f);
     colors[ImGuiCol_CheckMark]              = ImVec4(0.90f, 0.90f, 0.90f, 0.50f);
+    colors[ImGuiCol_CheckMarkInactive]      = ImVec4(0.00f, 0.00f, 0.00f, 0.75f);
     colors[ImGuiCol_SliderGrab]             = ImVec4(1.00f, 1.00f, 1.00f, 0.30f);
     colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.41f, 0.39f, 0.80f, 0.60f);
     colors[ImGuiCol_Button]                 = ImVec4(0.35f, 0.40f, 0.61f, 0.62f);
@@ -316,6 +318,7 @@ void ImGui::StyleColorsLight(ImGuiStyle* dst)
     colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.49f, 0.49f, 0.49f, 0.80f);
     colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.49f, 0.49f, 0.49f, 1.00f);
     colors[ImGuiCol_CheckMark]              = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+    colors[ImGuiCol_CheckMarkInactive]      = ImVec4(0.00f, 0.00f, 0.00f, 0.75f);
     colors[ImGuiCol_SliderGrab]             = ImVec4(0.26f, 0.59f, 0.98f, 0.78f);
     colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.46f, 0.54f, 0.80f, 0.60f);
     colors[ImGuiCol_Button]                 = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
@@ -1640,6 +1643,41 @@ void ImDrawList::AddText(const ImFont* font, float font_size, const ImVec2& pos,
 void ImDrawList::AddText(const ImVec2& pos, ImU32 col, const char* text_begin, const char* text_end)
 {
     AddText(NULL, 0.0f, pos, col, text_begin, text_end);
+}
+
+void ImDrawList::AddTextMulticolor(const ImFont* font, float font_size, const ImVec2& pos, ImU32 col, const char* text_begin, const char* text_end, float wrap_width, const ImVec4* cpu_fine_clip_rect)
+{
+    if ((col & IM_COL32_A_MASK) == 0)
+        return;
+
+    if (text_end == NULL)
+        text_end = text_begin + strlen(text_begin);
+    if (text_begin == text_end)
+        return;
+
+    // Pull default font/size from the shared ImDrawListSharedData instance
+    if (font == NULL)
+        font = _Data->Font;
+    if (font_size == 0.0f)
+        font_size = _Data->FontSize;
+
+    IM_ASSERT(font->ContainerAtlas->TexID == _CmdHeader.TextureId);  // Use high-level ImGui::PushFont() or low-level ImDrawList::PushTextureId() to change font.
+
+    ImVec4 clip_rect = _CmdHeader.ClipRect;
+    if (cpu_fine_clip_rect)
+    {
+        clip_rect.x = ImMax(clip_rect.x, cpu_fine_clip_rect->x);
+        clip_rect.y = ImMax(clip_rect.y, cpu_fine_clip_rect->y);
+        clip_rect.z = ImMin(clip_rect.z, cpu_fine_clip_rect->z);
+        clip_rect.w = ImMin(clip_rect.w, cpu_fine_clip_rect->w);
+    }
+
+    font->RenderTextColored(this, font_size, pos, col, clip_rect, text_begin, text_end, wrap_width, cpu_fine_clip_rect != NULL);
+}
+
+void ImDrawList::AddTextMulticolor(const ImVec2& pos, ImU32 col, const char* text_begin, const char* text_end)
+{
+    AddTextMulticolor(NULL, 0.0f, pos, col, text_begin, text_end);
 }
 
 void ImDrawList::AddImage(ImTextureID user_texture_id, const ImVec2& p_min, const ImVec2& p_max, const ImVec2& uv_min, const ImVec2& uv_max, ImU32 col)
@@ -3844,6 +3882,248 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, const ImVec2& pos, Im
                         continue;
                     }
                 }
+
+                // Support for untinted glyphs
+                ImU32 glyph_col = glyph->Colored ? col_untinted : col;
+
+                // We are NOT calling PrimRectUV() here because non-inlined causes too much overhead in a debug builds. Inlined here:
+                {
+                    vtx_write[0].pos.x = x1; vtx_write[0].pos.y = y1; vtx_write[0].col = glyph_col; vtx_write[0].uv.x = u1; vtx_write[0].uv.y = v1;
+                    vtx_write[1].pos.x = x2; vtx_write[1].pos.y = y1; vtx_write[1].col = glyph_col; vtx_write[1].uv.x = u2; vtx_write[1].uv.y = v1;
+                    vtx_write[2].pos.x = x2; vtx_write[2].pos.y = y2; vtx_write[2].col = glyph_col; vtx_write[2].uv.x = u2; vtx_write[2].uv.y = v2;
+                    vtx_write[3].pos.x = x1; vtx_write[3].pos.y = y2; vtx_write[3].col = glyph_col; vtx_write[3].uv.x = u1; vtx_write[3].uv.y = v2;
+                    idx_write[0] = (ImDrawIdx)(vtx_index); idx_write[1] = (ImDrawIdx)(vtx_index + 1); idx_write[2] = (ImDrawIdx)(vtx_index + 2);
+                    idx_write[3] = (ImDrawIdx)(vtx_index); idx_write[4] = (ImDrawIdx)(vtx_index + 2); idx_write[5] = (ImDrawIdx)(vtx_index + 3);
+                    vtx_write += 4;
+                    vtx_index += 4;
+                    idx_write += 6;
+                }
+            }
+        }
+        x += char_width;
+    }
+
+    // Give back unused vertices (clipped ones, blanks) ~ this is essentially a PrimUnreserve() action.
+    draw_list->VtxBuffer.Size = (int)(vtx_write - draw_list->VtxBuffer.Data); // Same as calling shrink()
+    draw_list->IdxBuffer.Size = (int)(idx_write - draw_list->IdxBuffer.Data);
+    draw_list->CmdBuffer[draw_list->CmdBuffer.Size - 1].ElemCount -= (idx_expected_size - draw_list->IdxBuffer.Size);
+    draw_list->_VtxWritePtr = vtx_write;
+    draw_list->_IdxWritePtr = idx_write;
+    draw_list->_VtxCurrentIdx = vtx_index;
+}
+
+// Color parser variables
+static constexpr int parser_max_char = 262144;
+static char char_buf[parser_max_char];
+static ImU32 col_buf[parser_max_char];
+
+void ImFont::RenderTextColored(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col, const ImVec4& clip_rect, const char* text_begin, const char* text_end, float wrap_width, bool cpu_fine_clip, bool override_alpha) const
+{
+    if (!text_end)
+        text_end = text_begin + strlen(text_begin);
+
+    auto DecodeColorTag = [override_alpha](const char*& text, ImU32* col, ImU32 original_col) -> bool {
+        if (strncmp(text, "<color=", 7) != 0)
+        {
+            return false;
+        }
+
+        int r, g, b, a;
+        if (sscanf(text + 7, "%02X%02X%02X%02X", &r, &g, &b, &a) == 4)
+        {
+            if (override_alpha)
+                a = (original_col >> IM_COL32_A_SHIFT) & 0xFF; // Replace alpha channel with original color's alpha if override_alpha is true
+            *col = IM_COL32(r, g, b, a);
+            text += 16; // 7 for "<color=", 8 for "RRGGBBAA", 1 for '>'
+            return true;
+        }
+        return false;
+    };
+
+    auto ResetColorTag = [&col](const char*& text, ImU32 original_col) -> bool {
+        if (strncmp(text, "</color>", 8) == 0)
+        {
+            col = original_col;
+            text += 8; // 8 for "</color>"
+            return true;
+        }
+        return false;
+    };
+
+    const char* str = text_begin;
+    const ImU32 original_col = col;
+
+    int i = 0;
+    while (str < text_end)
+    {
+        if (DecodeColorTag(str, &col, original_col))
+            continue;
+        if (ResetColorTag(str, original_col))
+            continue;
+
+        char_buf[i] = *str;
+        col_buf[i] = col;
+        ++i;
+        ++str;
+    }
+
+    text_begin = &char_buf[0];
+    text_end = &char_buf[i];
+
+    // Align to be pixel perfect
+    float x = IM_FLOOR(pos.x);
+    float y = IM_FLOOR(pos.y);
+    if (y > clip_rect.w)
+        return;
+
+    const float start_x = x;
+    const float scale = size / FontSize;
+    const float line_height = FontSize * scale;
+    const bool word_wrap_enabled = (wrap_width > 0.0f);
+
+    // Fast-forward to first visible line
+    const char* s = text_begin;
+    if (y + line_height < clip_rect.y)
+        while (y + line_height < clip_rect.y && s < text_end)
+        {
+            const char* line_end = (const char*)memchr(s, '\n', text_end - s);
+            if (word_wrap_enabled)
+            {
+                // FIXME-OPT: This is not optimal as do first do a search for \n before calling CalcWordWrapPositionA().
+                // If the specs for CalcWordWrapPositionA() were reworked to optionally return on \n we could combine both.
+                // However it is still better than nothing performing the fast-forward!
+                s = CalcWordWrapPositionA(scale, s, line_end ? line_end : text_end, wrap_width);
+                s = CalcWordWrapNextLineStartA(s, text_end);
+            }
+            else
+            {
+                s = line_end ? line_end + 1 : text_end;
+            }
+            y += line_height;
+        }
+
+    // For large text, scan for the last visible line in order to avoid over-reserving in the call to PrimReserve()
+    // Note that very large horizontal line will still be affected by the issue (e.g. a one megabyte string buffer without a newline will likely crash atm)
+    if (text_end - s > 10000 && !word_wrap_enabled)
+    {
+        const char* s_end = s;
+        float y_end = y;
+        while (y_end < clip_rect.w && s_end < text_end)
+        {
+            s_end = (const char*)memchr(s_end, '\n', text_end - s_end);
+            s_end = s_end ? s_end + 1 : text_end;
+            y_end += line_height;
+        }
+        text_end = s_end;
+    }
+    if (s == text_end)
+        return;
+
+    // Reserve vertices for remaining worse case (over-reserving is useful and easily amortized)
+    const int vtx_count_max = (int)(text_end - s) * 4;
+    const int idx_count_max = (int)(text_end - s) * 6;
+    const int idx_expected_size = draw_list->IdxBuffer.Size + idx_count_max;
+    draw_list->PrimReserve(idx_count_max, vtx_count_max);
+    ImDrawVert* vtx_write = draw_list->_VtxWritePtr;
+    ImDrawIdx* idx_write = draw_list->_IdxWritePtr;
+    unsigned int vtx_index = draw_list->_VtxCurrentIdx;
+
+    const ImU32 col_untinted = col | ~IM_COL32_A_MASK;
+    const char* word_wrap_eol = NULL;
+
+    while (s < text_end)
+    {
+        if (word_wrap_enabled)
+        {
+            // Calculate how far we can render. Requires two passes on the string data but keeps the code simple and not intrusive for what's essentially an uncommon feature.
+            if (!word_wrap_eol)
+                word_wrap_eol = CalcWordWrapPositionA(scale, s, text_end, wrap_width - (x - start_x));
+
+            if (s >= word_wrap_eol)
+            {
+                x = start_x;
+                y += line_height;
+                word_wrap_eol = NULL;
+                s = CalcWordWrapNextLineStartA(s, text_end); // Wrapping skips upcoming blanks
+                continue;
+            }
+        }
+
+        // Decode and advance source
+        unsigned int c = (unsigned int)*s;
+        if (c < 0x80)
+            s += 1;
+        else
+            s += ImTextCharFromUtf8(&c, s, text_end);
+
+        if (c < 32)
+        {
+            if (c == '\n')
+            {
+                x = start_x;
+                y += line_height;
+                if (y > clip_rect.w)
+                    break; // break out of main loop
+                continue;
+            }
+            if (c == '\r')
+                continue;
+        }
+
+        const ImFontGlyph* glyph = FindGlyph((ImWchar)c);
+        if (glyph == NULL)
+            continue;
+
+        float char_width = glyph->AdvanceX * scale;
+        if (glyph->Visible)
+        {
+            // We don't do a second finer clipping test on the Y axis as we've already skipped anything before clip_rect.y and exit once we pass clip_rect.w
+            float x1 = x + glyph->X0 * scale;
+            float x2 = x + glyph->X1 * scale;
+            float y1 = y + glyph->Y0 * scale;
+            float y2 = y + glyph->Y1 * scale;
+            if (x1 <= clip_rect.z && x2 >= clip_rect.x)
+            {
+                // Render a character
+                float u1 = glyph->U0;
+                float v1 = glyph->V0;
+                float u2 = glyph->U1;
+                float v2 = glyph->V1;
+
+                // CPU side clipping used to fit text in their frame when the frame is too small. Only does clipping for axis aligned quads.
+                if (cpu_fine_clip)
+                {
+                    if (x1 < clip_rect.x)
+                    {
+                        u1 = u1 + (1.0f - (x2 - clip_rect.x) / (x2 - x1)) * (u2 - u1);
+                        x1 = clip_rect.x;
+                    }
+                    if (y1 < clip_rect.y)
+                    {
+                        v1 = v1 + (1.0f - (y2 - clip_rect.y) / (y2 - y1)) * (v2 - v1);
+                        y1 = clip_rect.y;
+                    }
+                    if (x2 > clip_rect.z)
+                    {
+                        u2 = u1 + ((clip_rect.z - x1) / (x2 - x1)) * (u2 - u1);
+                        x2 = clip_rect.z;
+                    }
+                    if (y2 > clip_rect.w)
+                    {
+                        v2 = v1 + ((clip_rect.w - y1) / (y2 - y1)) * (v2 - v1);
+                        y2 = clip_rect.w;
+                    }
+                    if (y1 >= y2)
+                    {
+                        x += char_width;
+                        continue;
+                    }
+                }
+
+                const ImU32 custom_color = col_buf[s - text_begin - 1];
+
+                if (col != custom_color)
+                    col = custom_color;
 
                 // Support for untinted glyphs
                 ImU32 glyph_col = glyph->Colored ? col_untinted : col;
