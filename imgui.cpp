@@ -1214,6 +1214,7 @@ ImGuiStyle::ImGuiStyle()
     AntiAliasedFill         = true;             // Enable anti-aliased filled shapes (rounded rectangles, circles, etc.).
     CurveTessellationTol    = 1.25f;            // Tessellation tolerance when using PathBezierCurveTo() without a specific number of segments. Decrease for highly tessellated curves (higher quality, more polygons), increase to reduce quality.
     CircleTessellationMaxError = 0.30f;         // Maximum error (in pixels) allowed when using AddCircle()/AddCircleFilled() or drawing rounded corner rectangles with no explicit segment count specified. Decrease for higher quality but more geometry.
+    ScrollingAnimationSpeed = 15.f;               // Specifies the lerping speed for smooth scrolling. Higher values result in faster scrolling animations.
 
     // Behaviors
     HoverStationaryDelay    = 0.15f;            // Delay for IsItemHovered(ImGuiHoveredFlags_Stationary). Time required to consider mouse stationary.
@@ -6869,7 +6870,7 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
         float& anim = *p_anim;
 
         // Linear interpolation using deltaTime
-        float interpolation_speed = 15.0f;
+        float interpolation_speed = g.Style.ScrollingAnimationSpeed;
         float delta = needed_scroll - anim;
         float step = delta * g.IO.DeltaTime * interpolation_speed;
 

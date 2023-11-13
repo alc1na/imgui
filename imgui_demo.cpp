@@ -6582,6 +6582,8 @@ void ImGui::ShowStyleEditor(ImGuiStyle* ref)
 
             ImGui::SeparatorText("Misc");
             ImGui::SliderFloat2("DisplaySafeAreaPadding", (float*)&style.DisplaySafeAreaPadding, 0.0f, 30.0f, "%.0f"); ImGui::SameLine(); HelpMarker("Adjust if you cannot see the edges of your screen (e.g. on a TV where scaling has not been configured).");
+            ImGui::Text("Scrollbar");
+            ImGui::SliderFloat("ScrollingAnimationSpeed", &style.ScrollingAnimationSpeed, 1.0f, 50.0f, "%.1f");
 
             ImGui::EndTabItem();
         }
