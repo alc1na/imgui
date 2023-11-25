@@ -230,6 +230,24 @@ void ImGui::StyleColorsDark(ImGuiStyle* dst)
     colors[ImGuiCol_NavWindowingHighlight]  = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
     colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
     colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
+
+    colors[ImGuiCol_TextSection]            = ImVec4(1.0f, 0.251f, 0.506f, 1.0f);
+    colors[ImGuiCol_TextSubSection]         = ImVec4(0.878f, 0.251f, 0.984f, 1.0f);
+    colors[ImGuiCol_SectionSide]            = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+    colors[ImGuiCol_SectionCenter]          = ImVec4(0.7f, 0.7f, 0.7f, 0.3f);
+    colors[ImGuiCol_SectionBorderSide]      = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+    colors[ImGuiCol_SectionBorderCenter]    = ImVec4(1.0f, 1.0f, 1.0f, 0.5f);
+    colors[ImGuiCol_SubSectionSide]         = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+    colors[ImGuiCol_SubSectionCenter]       = ImVec4(0.5f, 0.5f, 0.5f, 0.3f);
+    colors[ImGuiCol_SubSectionBorderSide]   = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+    colors[ImGuiCol_SubSectionBorderCenter] = ImVec4(1.0f, 1.0f, 1.0f, 0.5f);
+    colors[ImGuiCol_OverlaySide]            = ImVec4(1.0f, 0.251f, 0.506f, 0.0);
+    colors[ImGuiCol_OverlayCenter]          = ImVec4(1.0f, 0.251f, 0.506f, 1.0);
+    colors[ImGuiCol_InfoTextLabel]          = ImVec4(0.5f, 0.8f, 0.4f, 1.0f);
+    colors[ImGuiCol_InfoTextInfo]           = ImVec4(1.0f, 0.251f, 0.506f, 1.0);
+    colors[ImGuiCol_InfoOverlayTextLeft]    = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+    colors[ImGuiCol_InfoOverlayTextRight]   = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+    colors[ImGuiCol_InfoOverlayTextName]    = ImVec4(1.0f, 0.251f, 0.506f, 1.0);
 }
 
 void ImGui::StyleColorsClassic(ImGuiStyle* dst)
@@ -291,6 +309,24 @@ void ImGui::StyleColorsClassic(ImGuiStyle* dst)
     colors[ImGuiCol_NavWindowingHighlight]  = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
     colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
     colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
+
+    colors[ImGuiCol_TextSection] = ImVec4(1.0f, 0.251f, 0.506f, 1.0f);
+    colors[ImGuiCol_TextSubSection] = ImVec4(0.878f, 0.251f, 0.984f, 1.0f);
+    colors[ImGuiCol_SectionSide] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+    colors[ImGuiCol_SectionCenter] = ImVec4(0.7f, 0.7f, 0.7f, 0.3f);
+    colors[ImGuiCol_SectionBorderSide] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+    colors[ImGuiCol_SectionBorderCenter] = ImVec4(1.0f, 1.0f, 1.0f, 0.5f);
+    colors[ImGuiCol_SubSectionSide] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+    colors[ImGuiCol_SubSectionCenter] = ImVec4(0.5f, 0.5f, 0.5f, 0.3f);
+    colors[ImGuiCol_SubSectionBorderSide] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+    colors[ImGuiCol_SubSectionBorderCenter] = ImVec4(1.0f, 1.0f, 1.0f, 0.5f);
+    colors[ImGuiCol_OverlaySide] = ImVec4(1.0f, 0.251f, 0.506f, 0.0);
+    colors[ImGuiCol_OverlayCenter] = ImVec4(1.0f, 0.251f, 0.506f, 1.0);
+    colors[ImGuiCol_InfoTextLabel] = ImVec4(0.5f, 0.8f, 0.4f, 1.0f);
+    colors[ImGuiCol_InfoTextInfo] = ImVec4(1.0f, 0.251f, 0.506f, 1.0);
+    colors[ImGuiCol_InfoOverlayTextLeft] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+    colors[ImGuiCol_InfoOverlayTextRight] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+    colors[ImGuiCol_InfoOverlayTextName] = ImVec4(1.0f, 0.251f, 0.506f, 1.0);
 }
 
 // Those light colors are better suited with a thicker font than the default one + FrameBorder
@@ -353,6 +389,24 @@ void ImGui::StyleColorsLight(ImGuiStyle* dst)
     colors[ImGuiCol_NavWindowingHighlight]  = ImVec4(0.70f, 0.70f, 0.70f, 0.70f);
     colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(0.20f, 0.20f, 0.20f, 0.20f);
     colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
+
+    colors[ImGuiCol_TextSection] = ImVec4(1.0f, 0.251f, 0.506f, 1.0f);
+    colors[ImGuiCol_TextSubSection] = ImVec4(0.878f, 0.251f, 0.984f, 1.0f);
+    colors[ImGuiCol_SectionSide] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+    colors[ImGuiCol_SectionCenter] = ImVec4(0.7f, 0.7f, 0.7f, 0.3f);
+    colors[ImGuiCol_SectionBorderSide] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+    colors[ImGuiCol_SectionBorderCenter] = ImVec4(1.0f, 1.0f, 1.0f, 0.5f);
+    colors[ImGuiCol_SubSectionSide] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+    colors[ImGuiCol_SubSectionCenter] = ImVec4(0.5f, 0.5f, 0.5f, 0.3f);
+    colors[ImGuiCol_SubSectionBorderSide] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+    colors[ImGuiCol_SubSectionBorderCenter] = ImVec4(1.0f, 1.0f, 1.0f, 0.5f);
+    colors[ImGuiCol_OverlaySide] = ImVec4(1.0f, 0.251f, 0.506f, 0.0);
+    colors[ImGuiCol_OverlayCenter] = ImVec4(1.0f, 0.251f, 0.506f, 1.0);
+    colors[ImGuiCol_InfoTextLabel] = ImVec4(0.5f, 0.8f, 0.4f, 1.0f);
+    colors[ImGuiCol_InfoTextInfo] = ImVec4(1.0f, 0.251f, 0.506f, 1.0);
+    colors[ImGuiCol_InfoOverlayTextLeft] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+    colors[ImGuiCol_InfoOverlayTextRight] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+    colors[ImGuiCol_InfoOverlayTextName] = ImVec4(1.0f, 0.251f, 0.506f, 1.0);
 }
 
 //-----------------------------------------------------------------------------

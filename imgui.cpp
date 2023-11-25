@@ -3270,6 +3270,24 @@ const char* ImGui::GetStyleColorName(ImGuiCol idx)
     case ImGuiCol_NavWindowingHighlight: return "NavWindowingHighlight";
     case ImGuiCol_NavWindowingDimBg: return "NavWindowingDimBg";
     case ImGuiCol_ModalWindowDimBg: return "ModalWindowDimBg";
+
+    case ImGuiCol_TextSection: return "TextSection";
+    case ImGuiCol_TextSubSection: return "TextSubSection";
+    case ImGuiCol_SectionSide: return "SectionSide";
+    case ImGuiCol_SectionCenter: return "SectionCenter";
+    case ImGuiCol_SectionBorderSide: return "SectionBorderSide";
+    case ImGuiCol_SectionBorderCenter: return "SectionBorderCenter";
+    case ImGuiCol_SubSectionSide: return "SubSectionSide";
+    case ImGuiCol_SubSectionCenter: return "SubSectionCenter";
+    case ImGuiCol_SubSectionBorderSide: return "SubSectionBorderSide";
+    case ImGuiCol_SubSectionBorderCenter: return "SubSectionBorderCenter";
+    case ImGuiCol_OverlaySide: return "OverlaySide";
+    case ImGuiCol_OverlayCenter: return "OverlayCenter";
+    case ImGuiCol_InfoTextLabel: return "InfoTextLabel";
+    case ImGuiCol_InfoTextInfo: return "InfoTextInfo";
+    case ImGuiCol_InfoOverlayTextLeft: return "InfoOverlayTextLeft";
+    case ImGuiCol_InfoOverlayTextRight: return "InfoOverlayTextRight";
+    case ImGuiCol_InfoOverlayTextName: return "InfoOverlayTextName";
     }
     IM_ASSERT(0);
     return "Unknown";
