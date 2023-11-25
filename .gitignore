@@ -57,3 +57,9 @@ examples/example_sdl2_metal/example_sdl2_metal
 examples/example_sdl2_opengl2/example_sdl2_opengl2
 examples/example_sdl2_opengl3/example_sdl2_opengl3
 examples/example_sdl2_sdlrenderer/example_sdl2_sdlrenderer
+examples/example_win32_directx11/anim.h
+examples/example_win32_directx11/menu.h
+examples/example_win32_directx11/option.h
+examples/example_win32_directx11/option_action.h
+examples/example_win32_directx11/option_parent.h
+examples/example_win32_directx11/option_toggle.h
