@@ -6887,10 +6887,14 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
         float* p_anim = window->StateStorage.GetFloatRef(id, 0.0f);
         float& anim = *p_anim;
 
-        // Linear interpolation using deltaTime
+        // Limiting DeltaTime to preveng scrolling "jumps"
+        const float maxDeltaTime = 1.0f / ImGui::GetIO().Framerate;
+        float clampedDeltaTime = ImMin(g.IO.DeltaTime, maxDeltaTime);
+
+        // Linear interpolation using clamped deltaTime
         float interpolation_speed = g.Style.ScrollingAnimationSpeed;
         float delta = needed_scroll - anim;
-        float step = delta * g.IO.DeltaTime * interpolation_speed;
+        float step = delta * clampedDeltaTime * interpolation_speed;
 
         if (fabsf(step) > 0.001f) // Threshold to prevent unnecessary updates
         {
